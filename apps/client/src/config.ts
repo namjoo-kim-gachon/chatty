@@ -8,7 +8,7 @@ const CONFIG_PATH =
   path.join(homedir(), ".config", "chatty", "config.json")
 
 const DEFAULT_CONFIG: Config = {
-  server_url: "http://localhost:7799",
+  server_url: process.env["CHATTY_SERVER_URL"] ?? "https://chatty.1000.school",
   keybindings: {
     scroll_up: "pageup",
     scroll_down: "pagedown",
