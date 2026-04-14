@@ -1,0 +1,17 @@
+{
+  "name": "chatty",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "test": "turbo test",
+    "check": "turbo check"
+  },
+  "devDependencies": {
+    "eslint": "^9.39.4",
+    "turbo": "latest"
+  }
+}

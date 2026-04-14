@@ -1,0 +1,14 @@
+{
+  "name": "@chatty/server",
+  "private": true,
+  "scripts": {
+    "dev": "uv run uvicorn app.main:app --reload --port 7799 --app-dir .",
+    "test": "uv run pytest tests/ -v",
+    "lint": "uv run ruff check app/ tests/",
+    "lint:fix": "uv run ruff check --fix app/ tests/",
+    "format": "uv run ruff format app/ tests/",
+    "format:check": "uv run ruff format --check app/ tests/",
+    "typecheck": "uv run basedpyright",
+    "check": "uv run ruff check app/ tests/ && uv run ruff format --check app/ tests/ && uv run basedpyright"
+  }
+}

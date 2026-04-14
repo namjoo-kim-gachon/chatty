@@ -1,0 +1,69 @@
+{
+  "status": {
+    "connected": "connected",
+    "reconnecting": "reconnecting",
+    "disconnected": "disconnected",
+    "scrollHint": "scrolling -- End: bottom"
+  },
+  "app": {
+    "tooNarrow": "Terminal too narrow (min 40 columns)",
+    "tooShort": "Terminal too short (min 8 rows)",
+    "connecting": "Connecting...",
+    "loadFailed": "Failed to load initial room",
+    "banned": "You are banned from this room. Use /leave to exit.",
+    "adminOnly": "Only admins can send messages in the lobby. Use /create or /list to join or create a room.",
+    "wrongPassword": "Wrong password.",
+    "roomLoadFailed": "Failed to load room info.",
+    "unknownCommand": "Unknown command: {cmd}. Type /? for available commands.",
+    "joinFailed": "Failed to join room."
+  },
+  "message": {
+    "muted": "[muted] Input is disabled."
+  },
+  "commands": {
+    "rooms": "/list",
+    "create": "/create",
+    "join": "/join",
+    "joinArg": "<number>",
+    "who": "/who",
+    "leave": "/leave",
+    "quit": "/quit"
+  },
+  "roomList": {
+    "title": "Rooms",
+    "search": "Search: ",
+    "loading": "Loading...",
+    "noRooms": "No rooms found.",
+    "help": "Up/Down select  Left/Right page  Enter join  Esc cancel",
+    "page": "Page {current}/{total} ({count} rooms)"
+  },
+  "createRoom": {
+    "title": "Create room",
+    "fieldName": "Name",
+    "fieldDescription": "Desc",
+    "fieldPassword": "Password",
+    "fieldMaxMembers": "Max (2-500)",
+    "fieldSlowMode": "Slow (0-99s)",
+    "errorNameRequired": "Room name is required.",
+    "errorMaxRange": "Max members must be 2-500.",
+    "errorSlowRange": "Slow mode must be 0-99 seconds.",
+    "errorCreateFailed": "Failed to create room",
+    "creating": "Creating...",
+    "help": "Tab next  Enter create  Esc cancel"
+  },
+  "userList": {
+    "onlineCount": "{name} Online ({count})",
+    "noUsers": "No users online",
+    "owner": "(owner)",
+    "help": "Esc close"
+  },
+  "passwordInput": {
+    "title": "{name} - password required",
+    "label": "Password: ",
+    "help": "Enter confirm  Esc cancel"
+  },
+  "login": {
+    "title": "Chatty -- {url}",
+    "nicknameLabel": "nickname: "
+  }
+}

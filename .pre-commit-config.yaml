@@ -1,0 +1,79 @@
+repos:
+  - repo: local
+    hooks:
+      - id: ascii-only-python
+        name: No non-ASCII in Python source
+        language: system
+        entry: "perl -ne 'BEGIN{$s=0} if(/[^\\x00-\\x7f]/){print \"$ARGV:$.: $_\";$s=1} END{exit $s}'"
+        types: [python]
+        files: ^apps/server/
+
+      - id: ascii-only-ts-comments
+        name: No non-ASCII in TypeScript comments
+        language: system
+        entry: "perl -ne 'BEGIN{$s=0} if(m{(//|/\\*).*[^\\x00-\\x7f]}){print \"$ARGV:$.: $_\";$s=1} END{exit $s}'"
+        types: [ts]
+        files: ^apps/client/
+
+      - id: ascii-only-markdown
+        name: No non-ASCII in Markdown docs
+        language: system
+        entry: "perl -ne 'BEGIN{$s=0} if(/[^\\x00-\\x7f]/){print \"$ARGV:$.: $_\";$s=1} END{exit $s}'"
+        types: [markdown]
+
+      - id: ruff-format
+        name: ruff format
+        language: system
+        entry: uv run ruff format --check apps/server/
+        pass_filenames: false
+        types: [python]
+        files: ^apps/server/
+
+      - id: ruff-check
+        name: ruff check
+        language: system
+        entry: uv run ruff check apps/server/
+        pass_filenames: false
+        types: [python]
+        files: ^apps/server/
+
+      - id: basedpyright
+        name: basedpyright
+        language: system
+        entry: bash -c 'cd apps/server && uv run basedpyright app/'
+        pass_filenames: false
+        types: [python]
+        files: ^apps/server/
+
+      - id: pytest
+        name: pytest
+        language: system
+        entry: uv run pytest apps/server/tests/ -v
+        pass_filenames: false
+        types: [python]
+        files: ^apps/server/
+
+      - id: client-typecheck
+        name: client typecheck
+        language: system
+        entry: bash -c 'cd apps/client && npm run typecheck'
+        pass_filenames: false
+        types: [ts]
+        files: ^apps/client/src/
+
+      - id: client-lint
+        name: client lint
+        language: system
+        entry: bash -c 'cd apps/client && npm run lint'
+        pass_filenames: false
+        types: [ts]
+        files: ^apps/client/src/
+
+      - id: client-format
+        name: client format
+        language: system
+        entry: bash -c 'cd apps/client && npm run format:check'
+        pass_filenames: false
+        types: [ts]
+        files: ^apps/client/src/
+

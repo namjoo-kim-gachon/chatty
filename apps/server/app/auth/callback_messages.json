@@ -1,0 +1,14 @@
+{
+  "ko": {
+    "success_title": "로그인 성공!",
+    "success_body": "이 탭을 닫고 터미널로 돌아가세요.",
+    "error_title": "로그인 실패",
+    "error_body": "터미널에서 다시 시도해 주세요."
+  },
+  "en": {
+    "success_title": "Login successful!",
+    "success_body": "You can close this tab and return to your terminal.",
+    "error_title": "Login failed",
+    "error_body": "Please try again from the terminal."
+  }
+}

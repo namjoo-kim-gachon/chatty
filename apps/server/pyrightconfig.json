@@ -1,0 +1,14 @@
+{
+  "venvPath": "../..",
+  "venv": ".venv",
+  "pythonVersion": "3.12",
+  "reportAny": false,
+  "reportExplicitAny": false,
+  "reportCallInDefaultInitializer": false,
+  "reportMissingTypeStubs": false,
+  "reportUnusedCallResult": false,
+  "reportImplicitStringConcatenation": false,
+  "reportUnusedFunction": false,
+  "reportUnannotatedClassAttribute": false,
+  "reportImportCycles": false
+}

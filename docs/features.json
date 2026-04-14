@@ -1,0 +1,12 @@
+{
+  "features": [
+    {"id": "auth", "name": "Authentication", "status": "implemented"},
+    {"id": "rooms", "name": "Room Management", "status": "implemented"},
+    {"id": "messages", "name": "Messages", "status": "implemented"},
+    {"id": "dm", "name": "Direct Messages", "status": "implemented"},
+    {"id": "bots", "name": "Bots/Agents", "status": "implemented"},
+    {"id": "moderation", "name": "Moderation", "status": "implemented"},
+    {"id": "admin", "name": "Admin", "status": "implemented"},
+    {"id": "sse", "name": "SSE Streaming", "status": "implemented"}
+  ]
+}

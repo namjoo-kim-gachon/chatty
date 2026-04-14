@@ -1,0 +1,7 @@
+[tool.uv.workspace]
+members = ["apps/server"]
+
+[dependency-groups]
+dev = [
+    "alembic>=1.18.4",
+]
