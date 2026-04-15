@@ -1,6 +1,6 @@
 {
   "name": "@namjookim/chatty",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Chatty — terminal chat client (TUI + CLI)",
   "homepage": "https://github.com/namjoo-kim-gachon/chatty",
   "repository": {
@@ -22,7 +22,8 @@
   "scripts": {
     "dev": "tsx src/index.tsx",
     "build": "tsc -p tsconfig.json",
-    "prepublishOnly": "npm run build",
+    "prepublishOnly": "cp ../../README.md ./README.md && npm run build",
+    "postpublish": "rm -f ./README.md",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src/ tests/",
     "lint:fix": "eslint src/ tests/ --fix",
