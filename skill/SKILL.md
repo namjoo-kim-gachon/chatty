@@ -7,22 +7,18 @@ description: Control a running Chatty TUI client. Use this skill when the user t
 
 Control a running Chatty TUI client via TCP socket. The TUI must be running.
 
-## CLI
-
-```bash
-CLI="bash ~/.claude/skills/chatty/scripts/chatty-cli.sh"
-```
+Install: `npm install -g @namjookim/chatty`
 
 Set `CHATTY_SOCKET_PORT` env var if TUI uses a non-default port (default: 7800).
 
 ## Commands
 
-Parse `/chatty <args>` and run the matching command. All output is JSON.
+Parse `/chatty <args>` and run the matching `chatty-cli` command. All output is JSON.
 
 ### status
 
 ```bash
-$CLI status
+chatty-cli status
 ```
 
 Returns: `{ nickname, user_id, is_admin, active_room, sse_status, is_muted, is_banned }`
@@ -30,7 +26,7 @@ Returns: `{ nickname, user_id, is_admin, active_room, sse_status, is_muted, is_b
 ### rooms list
 
 ```bash
-$CLI rooms list [--query <search>]
+chatty-cli rooms list [--query <search>]
 ```
 
 Returns: `Room[]` with `id, name, type, description, is_private, owner_nickname`
@@ -38,13 +34,13 @@ Returns: `Room[]` with `id, name, type, description, is_private, owner_nickname`
 ### rooms create
 
 ```bash
-$CLI rooms create --name <name> [--description <d>] [--password <p>] [--max-members <n>] [--slow-mode <sec>]
+chatty-cli rooms create --name <name> [--description <d>] [--password <p>] [--max-members <n>] [--slow-mode <sec>]
 ```
 
 ### rooms join
 
 ```bash
-$CLI rooms join <room-id> [--password <p>]
+chatty-cli rooms join <room-number> [--password <p>]
 ```
 
 Switches the TUI's active room.
@@ -52,21 +48,19 @@ Switches the TUI's active room.
 ### rooms leave
 
 ```bash
-$CLI rooms leave
+chatty-cli rooms leave
 ```
-
-TUI returns to #waiting.
 
 ### rooms info
 
 ```bash
-$CLI rooms info
+chatty-cli rooms info
 ```
 
 ### messages list
 
 ```bash
-$CLI messages list [--limit <n>]
+chatty-cli messages list [--limit <n>] [--all]
 ```
 
 Returns last N messages (default 50) from TUI memory. Each: `{ id, nickname, text, msg_type, seq, created_at }`
@@ -74,16 +68,27 @@ Returns last N messages (default 50) from TUI memory. Each: `{ id, nickname, tex
 ### messages send
 
 ```bash
-$CLI messages send <text>
+chatty-cli messages send <text>
 ```
 
 ### users list
 
 ```bash
-$CLI users list
+chatty-cli users list
 ```
 
 Returns: `string[]` of nicknames.
+
+### users mute / unmute / ban / unban
+
+```bash
+chatty-cli users mute <nickname>
+chatty-cli users unmute <nickname>
+chatty-cli users ban <nickname>
+chatty-cli users unban <nickname>
+```
+
+Owner only.
 
 ## Error Handling
 
