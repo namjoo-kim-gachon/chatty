@@ -16,6 +16,61 @@ Real-time terminal chat — React/Ink TUI + CLI remote control
 └───────────────────────────────────────────────────────────┘
 ```
 
+## Using chatty with AI Agents
+
+Copy and paste the prompt below into Claude Code, Codex, Gemini, or any other AI agent to give it the ability to interact with a running chatty TUI.
+
+> **Prerequisite:** The chatty TUI must already be running (`chatty`) before the agent can connect.
+
+````markdown
+## chatty-cli — control a running Chatty TUI
+
+A Chatty TUI is running on this machine. You can control it via `chatty-cli`.
+
+### Setup (if not already installed)
+```bash
+npm install -g @namjookim/chatty
+```
+
+### Read state
+```bash
+chatty-cli status                          # who am I, which room, connection status
+chatty-cli rooms list                      # all available rooms
+chatty-cli rooms list --query <keyword>    # search rooms
+chatty-cli rooms info                      # current room details
+chatty-cli messages list                   # last 50 messages
+chatty-cli messages list --limit <n>       # last N messages
+chatty-cli messages list --all             # all messages in TUI memory
+chatty-cli users list                      # users in current room
+```
+
+### Take action
+```bash
+chatty-cli rooms join <room-number>        # switch to a room (number, not ID)
+chatty-cli rooms leave                     # return to lobby
+chatty-cli rooms create --name <name>      # create a new room
+chatty-cli messages send <text>            # send a message to the current room
+chatty-cli users mute <nickname>           # mute a user (owner only)
+chatty-cli users unmute <nickname>         # unmute a user (owner only)
+chatty-cli users ban <nickname>            # ban a user (owner only)
+chatty-cli users unban <nickname>          # unban a user (owner only)
+```
+
+### Output format
+All commands output JSON by default. Add `--pretty` for human-readable output.
+
+### Error handling
+- Exit code 1 + stderr message = failure
+- `"Cannot connect to Chatty TUI"` → TUI is not running or wrong port
+- `"Not connected to any room"` → join a room first
+- `"TUI not ready"` → TUI is running but not logged in yet
+
+### Socket port
+Default port is 7800. Override with: `CHATTY_SOCKET_PORT=<port> chatty-cli <command>`
+````
+
+---
+
 ## Features
 
 - **Multi-room chat** — public/private/password-protected rooms, jump by room number (#1, #2…)
@@ -210,61 +265,6 @@ uv run uvicorn app.main:app --reload --port 7799 --app-dir apps/server
 uv run pytest apps/server/tests/ -v    # server
 npm test --workspace apps/client        # client
 ```
-
----
-
-## Using chatty with AI Agents
-
-Copy and paste the prompt below into Claude Code, Codex, Gemini, or any other AI agent to give it the ability to interact with a running chatty TUI.
-
-> **Prerequisite:** The chatty TUI must already be running (`chatty`) before the agent can connect.
-
-````markdown
-## chatty-cli — control a running Chatty TUI
-
-A Chatty TUI is running on this machine. You can control it via `chatty-cli`.
-
-### Setup (if not already installed)
-```bash
-npm install -g @namjookim/chatty
-```
-
-### Read state
-```bash
-chatty-cli status                          # who am I, which room, connection status
-chatty-cli rooms list                      # all available rooms
-chatty-cli rooms list --query <keyword>    # search rooms
-chatty-cli rooms info                      # current room details
-chatty-cli messages list                   # last 50 messages
-chatty-cli messages list --limit <n>       # last N messages
-chatty-cli messages list --all             # all messages in TUI memory
-chatty-cli users list                      # users in current room
-```
-
-### Take action
-```bash
-chatty-cli rooms join <room-number>        # switch to a room (number, not ID)
-chatty-cli rooms leave                     # return to lobby
-chatty-cli rooms create --name <name>      # create a new room
-chatty-cli messages send <text>            # send a message to the current room
-chatty-cli users mute <nickname>           # mute a user (owner only)
-chatty-cli users unmute <nickname>         # unmute a user (owner only)
-chatty-cli users ban <nickname>            # ban a user (owner only)
-chatty-cli users unban <nickname>          # unban a user (owner only)
-```
-
-### Output format
-All commands output JSON by default. Add `--pretty` for human-readable output.
-
-### Error handling
-- Exit code 1 + stderr message = failure
-- `"Cannot connect to Chatty TUI"` → TUI is not running or wrong port
-- `"Not connected to any room"` → join a room first
-- `"TUI not ready"` → TUI is running but not logged in yet
-
-### Socket port
-Default port is 7800. Override with: `CHATTY_SOCKET_PORT=<port> chatty-cli <command>`
-````
 
 ---
 
