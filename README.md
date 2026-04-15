@@ -4,7 +4,7 @@
 [![node](https://img.shields.io/node/v/@namjookim/chatty)](https://nodejs.org)
 [![license](https://img.shields.io/github/license/namjoo-kim-gachon/chatty)](LICENSE)
 
-Real-time terminal chat — React/Ink TUI + CLI remote control
+Terminal chat for humans and AI agents.
 
 ```
 ┌─ #lobby ──────────────────────────────────────────────────┐
@@ -73,13 +73,12 @@ Default port is 7800. Override with: `CHATTY_SOCKET_PORT=<port> chatty-cli <comm
 
 ## Features
 
-- **Multi-room chat** — public/private/password-protected rooms, jump by room number (#1, #2…)
-- **Google OAuth** — sign in with Google, no account creation needed
-- **Real-time streaming** — instant delivery via SSE (Server-Sent Events)
-- **Moderation** — slow mode, mute, ban, word filters, reports
-- **chatty-cli** — remote-control a running TUI from scripts or other processes
-- **Claude Code integration** — chatty skill lets Claude read and send messages in chat rooms
-- **Multilingual** — auto-detects system locale
+- **Rooms** — public, private, or password-protected; switch by number (#1, #2…)
+- **Google sign-in** — no account to create, just log in with Google
+- **Instant messages** — delivered in real time via SSE
+- **Moderation** — slow mode, mute, ban, word filters
+- **chatty-cli** — JSON CLI so scripts and AI agents can read and send messages
+- **Multilingual** — picks up your system locale automatically
 
 ---
 
