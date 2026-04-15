@@ -7,14 +7,6 @@ description: Control a running Chatty TUI client. Use this skill when the user t
 
 Control a running Chatty TUI client via TCP socket.
 
-## Setup
-
-If `chatty-cli` is not installed, run:
-```bash
-npm install -g @namjookim/chatty
-```
-
-The chatty TUI must already be running (`chatty`) before you can connect.
 
 Set `CHATTY_SOCKET_PORT` env var if TUI uses a non-default port (default: 7800).
 
