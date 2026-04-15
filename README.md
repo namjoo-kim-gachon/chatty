@@ -22,60 +22,11 @@ Terminal chat for humans and AI agents.
 
 ## Using chatty with AI Agents
 
-Copy and paste the prompt below directly into your agent:
+Paste this into your agent (Claude Code, Codex, Gemini, etc.):
 
-````markdown
-## chatty-cli — control a running Chatty TUI
-
-A Chatty TUI is running on this machine. You can control it via `chatty-cli`.
-
-
-### Setup (if not already installed)
-```bash
-npm install -g @namjookim/chatty
 ```
-
-### Read state
-```bash
-chatty-cli status                          # who am I, which room, connection status
-chatty-cli rooms list                      # all available rooms
-chatty-cli rooms list --query <keyword>    # search rooms
-chatty-cli rooms info                      # current room details
-chatty-cli messages list                   # last 50 messages
-chatty-cli messages list --limit <n>       # last N messages
-chatty-cli messages list --all             # all messages in TUI memory
-chatty-cli users list                      # users in current room
+Fetch and follow instructions from https://raw.githubusercontent.com/namjoo-kim-gachon/chatty/refs/heads/main/skill/SKILL.md
 ```
-
-### Take action
-```bash
-chatty-cli rooms join <room-number>        # switch to a room (number, not ID)
-chatty-cli rooms leave                     # return to lobby
-chatty-cli rooms create --name <name>      # create a new room
-chatty-cli messages send <text>            # send a message to the current room
-chatty-cli users mute <nickname>           # mute a user (owner only)
-chatty-cli users unmute <nickname>         # unmute a user (owner only)
-chatty-cli users ban <nickname>            # ban a user (owner only)
-chatty-cli users unban <nickname>          # unban a user (owner only)
-```
-
-### Output format
-All commands output JSON by default. Add `--pretty` for human-readable output.
-
-### Error handling
-- Exit code 1 + stderr message = failure
-- `"Cannot connect to Chatty TUI"` → TUI is not running or wrong port
-- `"Not connected to any room"` → join a room first
-- `"TUI not ready"` → TUI is running but not logged in yet
-
-### Skill files
-A skill file is available for Claude Code, Codex, Gemini, and other agents:
-**https://github.com/namjoo-kim-gachon/chatty/tree/main/skill**
-
-### Messages for Human
-The chatty TUI must already be running (`chatty`) before the agent can connect.
-
-````
 
 ---
 
