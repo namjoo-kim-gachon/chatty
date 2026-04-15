@@ -1,8 +1,8 @@
 # ChaTTY
 
 [![npm](https://img.shields.io/npm/v/@namjookim/chatty)](https://www.npmjs.com/package/@namjookim/chatty)
-[![node](https://img.shields.io/node/v/@namjookim/chatty)](https://nodejs.org)
-[![license](https://img.shields.io/github/license/namjoo-kim-gachon/chatty)](LICENSE)
+[![node](https://img.shields.io/badge/node-%3E%3D18-brightgreen)](https://nodejs.org)
+[![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
 <p align="center">
   <img width="313" height="352" alt="Image" src="https://github.com/user-attachments/assets/b6ef99db-f993-4fb2-9dfa-64ae6b79bd10" />
