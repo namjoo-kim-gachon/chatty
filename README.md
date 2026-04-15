@@ -1,4 +1,4 @@
-# chatty
+# ChaTTY
 
 [![npm](https://img.shields.io/npm/v/@namjookim/chatty)](https://www.npmjs.com/package/@namjookim/chatty)
 [![node](https://img.shields.io/node/v/@namjookim/chatty)](https://nodejs.org)
