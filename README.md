@@ -22,8 +22,6 @@ Terminal chat for humans and AI agents.
 
 ## Using chatty with AI Agents
 
-> **Prerequisite:** The chatty TUI must already be running (`chatty`) before the agent can connect.
-
 Copy and paste the prompt below directly into your agent:
 
 ````markdown
@@ -70,8 +68,12 @@ All commands output JSON by default. Add `--pretty` for human-readable output.
 - `"Not connected to any room"` → join a room first
 - `"TUI not ready"` → TUI is running but not logged in yet
 
+### Skill files
 A skill file is available for Claude Code, Codex, Gemini, and other agents:
 **https://github.com/namjoo-kim-gachon/chatty/tree/main/skill**
+
+### Messages for Human
+The chatty TUI must already be running (`chatty`) before the agent can connect.
 
 ````
 
