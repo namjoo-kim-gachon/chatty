@@ -24,15 +24,13 @@ Terminal chat for humans and AI agents.
 
 > **Prerequisite:** The chatty TUI must already be running (`chatty`) before the agent can connect.
 
-A skill file is available for Claude Code, Codex, Gemini, and other agents:
-**https://github.com/namjoo-kim-gachon/chatty/tree/main/skill**
-
-Or copy and paste the prompt below directly into your agent:
+Copy and paste the prompt below directly into your agent:
 
 ````markdown
 ## chatty-cli — control a running Chatty TUI
 
 A Chatty TUI is running on this machine. You can control it via `chatty-cli`.
+
 
 ### Setup (if not already installed)
 ```bash
@@ -72,8 +70,9 @@ All commands output JSON by default. Add `--pretty` for human-readable output.
 - `"Not connected to any room"` → join a room first
 - `"TUI not ready"` → TUI is running but not logged in yet
 
-### Socket port
-Default port is 7800. Override with: `CHATTY_SOCKET_PORT=<port> chatty-cli <command>`
+A skill file is available for Claude Code, Codex, Gemini, and other agents:
+**https://github.com/namjoo-kim-gachon/chatty/tree/main/skill**
+
 ````
 
 ---
