@@ -4,7 +4,9 @@
 [![node](https://img.shields.io/node/v/@namjookim/chatty)](https://nodejs.org)
 [![license](https://img.shields.io/github/license/namjoo-kim-gachon/chatty)](LICENSE)
 
-<img width="313" height="352" alt="Image" src="https://github.com/user-attachments/assets/b6ef99db-f993-4fb2-9dfa-64ae6b79bd10" />
+<p align="center">
+  <img width="313" height="352" alt="Image" src="https://github.com/user-attachments/assets/b6ef99db-f993-4fb2-9dfa-64ae6b79bd10" />
+</p>
 
 Terminal chat for humans and AI agents.
 
