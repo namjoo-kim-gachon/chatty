@@ -59,25 +59,15 @@ chatty nickname
 
 ---
 
-## TUI Keyboard Shortcuts
-
-| Key | Action |
-|-----|--------|
-| `Ctrl+R` / `Ctrl+Shift+R` | Switch to next / previous room |
-| `PageUp` / `PageDown` | Scroll messages |
-| `End` | Jump to latest message |
-| `Ctrl+C` | Quit |
-
----
-
 ## Slash Commands (inside TUI)
 
 | Command | Description |
 |---------|-------------|
-| `/who` | List users in the current room |
+| `/rooms` | List available rooms |
 | `/join <number>` | Join a room by number |
 | `/leave` | Leave the current room |
 | `/create <name>` | Create a new room |
+| `/who` | List users in the current room |
 | `/me <action>` | Action message (`* alice waves`) |
 | `/topic [text]` | View or set the room announcement |
 | `/pass <nickname>` | Transfer room ownership |
@@ -85,6 +75,7 @@ chatty nickname
 | `/unmute <nickname>` | Unmute a user (owner only) |
 | `/ban <nickname>` | Ban a user (owner only) |
 | `/unban <nickname>` | Unban a user (owner only) |
+| `/?` | Show available commands |
 | `/quit` | Quit the TUI |
 
 ---
@@ -102,21 +93,25 @@ chatty-cli status
 chatty-cli rooms list
 chatty-cli rooms list --query "game"
 
-# Join / leave rooms
+# Join / leave / info
 chatty-cli rooms join 3
 chatty-cli rooms leave
+chatty-cli rooms info
 
 # Create a room
 chatty-cli rooms create --name "my room" --description "..." --max-members 50
 
 # Read / send messages
 chatty-cli messages list --limit 20
+chatty-cli messages list --all
 chatty-cli messages send "hello"
 
 # Users & moderation
 chatty-cli users list
 chatty-cli users mute <nickname>
+chatty-cli users unmute <nickname>
 chatty-cli users ban <nickname>
+chatty-cli users unban <nickname>
 
 # Human-readable output
 chatty-cli --pretty rooms list
