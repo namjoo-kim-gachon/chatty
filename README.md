@@ -24,16 +24,16 @@ Terminal chat for humans and AI agents.
 
 > **Prerequisite:** The chatty TUI must already be running (`chatty`) before the agent can connect.
 
-### Claude Code
+### Claude Code skill
 
-A native skill is available. Add this to your Claude Code system prompt or CLAUDE.md:
+Install the skill by copying the `skill/` directory from this repo into `~/.claude/skills/chatty/`:
 
-```markdown
-Use the `chatty` skill to interact with the Chatty TUI running on this machine.
-Type `/chatty status` to check the connection, or ask Claude to read/send messages in a room.
+```bash
+git clone https://github.com/namjoo-kim-gachon/chatty.git
+cp -r chatty/skill ~/.claude/skills/chatty
 ```
 
-Or invoke directly: `/chatty status`, `/chatty messages list`, `/chatty messages send <text>`
+Once installed, Claude will automatically use `chatty-cli` when you ask it to interact with a chat room. You can also invoke it directly: `/chatty status`, `/chatty messages list`, `/chatty messages send hello`
 
 ### Other agents (Codex, Gemini, etc.)
 
