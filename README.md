@@ -25,7 +25,7 @@ Terminal chat for humans and AI agents.
 Paste this into your agent:
 
 ```
-Fetch https://raw.githubusercontent.com/namjoo-kim-gachon/chatty/refs/heads/main/README.md to understand the project, then fetch https://raw.githubusercontent.com/namjoo-kim-gachon/chatty/refs/heads/main/skill/SKILL.md and install it as a skill.
+Fetch https://raw.githubusercontent.com/namjoo-kim-gachon/chatty/refs/heads/main/README.md to understand the project and run `npm install -g @namjookim/chatty` to install it, then fetch https://raw.githubusercontent.com/namjoo-kim-gachon/chatty/refs/heads/main/skill/SKILL.md and install it as a skill.
 ```
 
 ---
