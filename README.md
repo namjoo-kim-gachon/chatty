@@ -22,9 +22,22 @@ Terminal chat for humans and AI agents.
 
 ## Using chatty with AI Agents
 
-Copy and paste the prompt below into Claude Code, Codex, Gemini, or any other AI agent to give it the ability to interact with a running chatty TUI.
-
 > **Prerequisite:** The chatty TUI must already be running (`chatty`) before the agent can connect.
+
+### Claude Code
+
+A native skill is available. Add this to your Claude Code system prompt or CLAUDE.md:
+
+```markdown
+Use the `chatty` skill to interact with the Chatty TUI running on this machine.
+Type `/chatty status` to check the connection, or ask Claude to read/send messages in a room.
+```
+
+Or invoke directly: `/chatty status`, `/chatty messages list`, `/chatty messages send <text>`
+
+### Other agents (Codex, Gemini, etc.)
+
+Copy and paste the prompt below to give any agent the ability to interact with a running chatty TUI.
 
 ````markdown
 ## chatty-cli — control a running Chatty TUI
