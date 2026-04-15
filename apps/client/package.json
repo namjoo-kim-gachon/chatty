@@ -1,14 +1,22 @@
 {
-  "name": "@chatty/client",
+  "name": "@namjookim/chatty",
   "version": "0.1.0",
+  "description": "Chatty — terminal chat client (TUI + CLI)",
   "type": "module",
   "bin": {
     "chatty": "./dist/index.js",
     "chatty-cli": "./dist/cli.js"
   },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "dev": "tsx src/index.tsx",
     "build": "tsc -p tsconfig.json",
+    "prepublishOnly": "npm run build",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src/ tests/",
     "lint:fix": "eslint src/ tests/ --fix",
