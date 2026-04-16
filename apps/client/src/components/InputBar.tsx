@@ -37,7 +37,9 @@ export function InputBar({
     }
     if (key.escape) {
       setInputValue(goToBottom())
+      return
     }
+    // Let other keys (PageUp, PageDown, Home, End, etc.) bubble up
   })
 
   const handleSubmit = useCallback(
@@ -61,7 +63,7 @@ export function InputBar({
 
   setCursorPosition({
     x: Math.min(promptWidth + stringWidth(inputValue), cols - 1),
-    y: stdout.rows - 3,
+    y: stdout.rows - 2,
   })
 
   return (
