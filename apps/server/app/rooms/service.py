@@ -385,10 +385,10 @@ async def join_room(room_id: str, body: RoomJoin, current_user: Row) -> None:
             status_code=status.HTTP_404_NOT_FOUND, detail="Room not found"
         )
 
-    globally_banned, room_banned, _ = await mod_cache.check_moderation(
+    room_banned, _ = await mod_cache.check_room_moderation(
         str(current_user["id"]), room_id
     )
-    if globally_banned or room_banned:
+    if room_banned:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Banned")
 
     if room["max_members"] is not None:
@@ -596,10 +596,10 @@ async def stream_setup(token: str, room_id: str) -> tuple[str, str, bool]:
                 detail="Room is full",
             )
 
-    globally_banned, room_banned, is_muted = await mod_cache.check_moderation(
+    room_banned, is_muted = await mod_cache.check_room_moderation(
         user_id, room_id
     )
-    if globally_banned or room_banned:
+    if room_banned:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Banned",
