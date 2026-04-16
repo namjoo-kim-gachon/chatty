@@ -32,6 +32,9 @@ Thumbs.db
 .vscode/
 *.swp
 
+# Claude Code
+.claude/
+
 # Turbo cache
 .turbo/
 
