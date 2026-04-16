@@ -39,6 +39,10 @@ const KEY_END_SS3 = "\u001BOF"
 const KEY_HOME = "\u001B[H"
 const KEY_HOME_ALT = "\u001B[1~"
 const KEY_HOME_SS3 = "\u001BOH"
+const KEY_PAGE_UP_VT100 = "\u001B[5~"
+const KEY_PAGE_UP_VT220 = "\u001B[V"
+const KEY_PAGE_DOWN_VT100 = "\u001B[6~"
+const KEY_PAGE_DOWN_VT220 = "\u001B[U"
 const VISIBLE_ROWS_OVERHEAD = 4
 const MIN_COLS = 40
 const MIN_ROWS = 8
@@ -114,6 +118,36 @@ function ChatApp({
   const { scrollOffset, isScrollLocked, unlockScroll, scrollUp, scrollDown, scrollToTop } =
     useScroll(messages.length, visibleRows)
 
+  // Enable mouse tracking
+  useEffect(() => {
+    stdout.write("\u001B[?1000h") // Enable mouse tracking
+    stdout.write("\u001B[?1002h") // Enable cell motion mouse tracking
+    stdout.write("\u001B[?1003h") // Enable all events mouse tracking
+
+    const handleMouse = (data: Buffer) => {
+      if (screen.type !== "chat") return
+      const str = data.toString()
+      // X11 mouse encoding: \u001B[M<button><x><y>
+      // Wheel up: button 64, Wheel down: button 65
+      if (str.startsWith("\u001B[M")) {
+        const button = str.charCodeAt(3) - 32
+        if (button === 64) {
+          scrollUp(3)
+        } else if (button === 65) {
+          scrollDown(3)
+        }
+      }
+    }
+
+    process.stdin.on("data", handleMouse)
+    return () => {
+      process.stdin.off("data", handleMouse)
+      stdout.write("\u001B[?1000l") // Disable mouse tracking
+      stdout.write("\u001B[?1002l")
+      stdout.write("\u001B[?1003l")
+    }
+  }, [stdout, screen.type, scrollUp, scrollDown])
+
   useInput((input, key) => {
     if (screen.type !== "chat") return
     if (key.escape && showHelp) {
@@ -125,6 +159,20 @@ function ChatApp({
       return
     }
     if (key.pageDown) {
+      scrollDown(visibleRows)
+      return
+    }
+    if (
+      input === KEY_PAGE_UP_VT100 ||
+      input === KEY_PAGE_UP_VT220
+    ) {
+      scrollUp(visibleRows)
+      return
+    }
+    if (
+      input === KEY_PAGE_DOWN_VT100 ||
+      input === KEY_PAGE_DOWN_VT220
+    ) {
       scrollDown(visibleRows)
       return
     }
@@ -140,6 +188,7 @@ function ChatApp({
       exit()
     }
   })
+
 
   // Auto-exit to lobby when banned
   useEffect(() => {
