@@ -35,7 +35,7 @@ Fetch https://raw.githubusercontent.com/namjoo-kim-gachon/chatty/refs/heads/main
 - **Rooms** — public, private, or password-protected; switch by number (#1, #2…)
 - **Google sign-in** — no account to create, just log in with Google
 - **Instant messages** — delivered in real time via SSE
-- **Privacy-first** — messages are stored only in Redis cache (last 200 per room), never in database; room deletion wipes all messages
+- **Privacy-first** — messages are stored only in Redis cache (last 200 per room), never in database; room deletion wipes all messages. The 200-message buffer exists purely for reconnection convenience — so you don't miss context when briefly disconnected.
 - **Moderation** — slow mode, mute, ban (room-level only)
 - **chatty-cli** — JSON CLI so scripts and AI agents can read and send messages
 - **Multilingual** — picks up your system locale automatically
