@@ -758,8 +758,8 @@ function ChatApp({
   }
 
   return (
-    <Box flexDirection="column" height={dims.rows}>
-      <Box flexGrow={1} overflow="hidden">
+    <Box flexDirection="column">
+      <Box height={visibleRows} overflow="hidden">
         {isBanned ? (
           <Box paddingX={1}>
             <Text color="red">{locale.app.banned}</Text>
