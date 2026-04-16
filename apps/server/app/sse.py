@@ -164,7 +164,7 @@ class SSEBroadcaster:
         payload_list: list[dict[str, object]] = []
         for uid in departed:
             # Only broadcast user_left if the departing user was not muted
-            _, _, was_muted = await mod_cache.check_moderation(uid, room_id)
+            _, was_muted = await mod_cache.check_room_moderation(uid, room_id)
             if not was_muted:
                 payload_list.append({"event": "user_left", "data": {"user_id": uid}})
 
@@ -258,7 +258,7 @@ class SSEBroadcaster:
             if user_id == exclude_user_id:
                 continue
             # Check if recipient is muted in this room
-            _, _, is_muted = await mod_cache.check_moderation(user_id, room_id)
+            _, is_muted = await mod_cache.check_room_moderation(user_id, room_id)
             if not is_muted:
                 await conn.put({"event": event_type, "data": data})
 
