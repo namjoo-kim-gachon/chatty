@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react"
+import type { useStdout } from "ink"
 
 interface UseScrollResult {
   scrollOffset: number
@@ -10,7 +11,11 @@ interface UseScrollResult {
   scrollToTop: () => void
 }
 
-export function useScroll(messageCount: number, visibleRows: number): UseScrollResult {
+export function useScroll(
+  totalLines: number,
+  visibleRows: number,
+  _stdout: ReturnType<typeof useStdout>["stdout"],
+): UseScrollResult {
   const [scrollOffset, setScrollOffset] = useState(0)
   const [isScrollLocked, setIsScrollLocked] = useState(false)
 
@@ -25,12 +30,13 @@ export function useScroll(messageCount: number, visibleRows: number): UseScrollR
 
   const scrollUp = useCallback(
     (amount = 3) => {
+      // scrollOffset is in LINE units. maxOffset = lines above the current view.
+      const maxOffset = Math.max(0, totalLines - visibleRows)
+      if (maxOffset === 0) return // nothing to scroll up
+      setScrollOffset((previous) => Math.min(previous + amount, maxOffset))
       setIsScrollLocked(true)
-      setScrollOffset((previous) =>
-        Math.min(previous + amount, Math.max(0, messageCount - visibleRows)),
-      )
     },
-    [messageCount, visibleRows],
+    [totalLines, visibleRows],
   )
 
   const scrollDown = useCallback((amount = 3) => {
@@ -44,10 +50,10 @@ export function useScroll(messageCount: number, visibleRows: number): UseScrollR
   }, [])
 
   const scrollToTop = useCallback(() => {
-    const topOffset = Math.max(0, messageCount - visibleRows)
-    setIsScrollLocked(topOffset > 0)
-    setScrollOffset(topOffset)
-  }, [messageCount, visibleRows])
+    const maxOffset = Math.max(0, totalLines - visibleRows)
+    setIsScrollLocked(maxOffset > 0)
+    setScrollOffset(maxOffset)
+  }, [totalLines, visibleRows])
 
   return {
     scrollOffset,

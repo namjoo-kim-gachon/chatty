@@ -3,6 +3,13 @@ import { Box, Text } from "ink"
 import type { Message } from "../types.js"
 import type { Theme } from "../theme/types.js"
 import { useTheme } from "../theme/context.js"
+import {
+  visualSlice,
+  padToWidth,
+  wrapText,
+  TIME_WIDTH,
+  PREFIX_WIDTH,
+} from "../lib/textLayout.js"
 
 function getNickColorFallback(
   nickname: string,
@@ -23,31 +30,6 @@ function formatTime(timestamp: number): string {
   const hh = date.getHours().toString().padStart(2, "0")
   const mm = date.getMinutes().toString().padStart(2, "0")
   return `${hh}:${mm}`
-}
-
-function visualWidth(text: string): number {
-  let w = 0
-  for (const ch of text) {
-    w += charWidth(ch.codePointAt(0) ?? 0)
-  }
-  return w
-}
-
-function visualSlice(text: string, maxWidth: number): string {
-  let w = 0
-  let result = ""
-  for (const ch of text) {
-    const cw = charWidth(ch.codePointAt(0) ?? 0)
-    if (w + cw > maxWidth) break
-    result += ch
-    w += cw
-  }
-  return result
-}
-
-function padToWidth(text: string, width: number): string {
-  const pad = width - visualWidth(text)
-  return pad > 0 ? text + " ".repeat(pad) : text
 }
 
 function getNickPrefix(message: Message, theme: Theme): string {
@@ -78,53 +60,6 @@ function getNickPrefix(message: Message, theme: Theme): string {
     }
   }
 }
-
-/* eslint-disable no-magic-numbers */
-const WIDE_RANGES: readonly (readonly [number, number])[] = [
-  [0x11_00, 0x11_5f],
-  [0x2e_80, 0x30_3e],
-  [0x30_41, 0x33_bf],
-  [0x34_00, 0x4d_bf],
-  [0x4e_00, 0x9f_ff],
-  [0xa0_00, 0xa4_cf],
-  [0xac_00, 0xd7_af],
-  [0xf9_00, 0xfa_ff],
-  [0xfe_10, 0xfe_1f],
-  [0xfe_30, 0xfe_4f],
-  [0xff_01, 0xff_60],
-  [0xff_e0, 0xff_e6],
-  [0x1_b0_00, 0x1_b0_ff],
-  [0x1_f0_04, 0x1_f0_cf],
-  [0x1_f3_00, 0x1_fa_ff],
-]
-/* eslint-enable no-magic-numbers */
-
-function charWidth(cp: number): number {
-  return WIDE_RANGES.some(([start, end]) => cp >= start && cp <= end) ? 2 : 1
-}
-
-function wrapText(text: string, maxWidth: number): string[] {
-  if (maxWidth <= 0 || text.length === 0) return [""]
-  const lines: string[] = []
-  let line = ""
-  let lineW = 0
-  for (const ch of text) {
-    const cw = charWidth(ch.codePointAt(0) ?? 0)
-    if (lineW + cw > maxWidth) {
-      lines.push(line)
-      line = ch
-      lineW = cw
-    } else {
-      line += ch
-      lineW += cw
-    }
-  }
-  lines.push(line)
-  return lines
-}
-
-const TIME_WIDTH = 6
-const PREFIX_WIDTH = 13
 
 interface MessageRowProps {
   readonly message: Message
@@ -294,10 +229,19 @@ export function MessageList({
     Math.max(1, wrapText(m.text, textWidth).length),
   )
 
-  let end = messages.length - scrollOffset
-  if (end < 0) end = 0
-  if (end > messages.length) end = messages.length
+  // scrollOffset is in LINE units: number of lines hidden from the bottom.
+  // Find the last message to show by skipping whole messages from the end
+  // until we've accounted for at least scrollOffset lines.
+  let end = messages.length
+  let linesFromEnd = 0
+  while (end > 0) {
+    const messageLines = lineCounts[end - 1] ?? 1
+    if (linesFromEnd + messageLines > scrollOffset) break
+    linesFromEnd += messageLines
+    end--
+  }
 
+  // Fill backward from end to fill visible rows
   let start = end
   let remaining = visible
   while (start > 0 && remaining > 0) {
