@@ -35,8 +35,10 @@ const FORBIDDEN_ERROR = "403: Forbidden"
 
 const KEY_END = "\u001B[F"
 const KEY_END_ALT = "\u001B[4~"
+const KEY_END_SS3 = "\u001BOF"
 const KEY_HOME = "\u001B[H"
 const KEY_HOME_ALT = "\u001B[1~"
+const KEY_HOME_SS3 = "\u001BOH"
 const VISIBLE_ROWS_OVERHEAD = 4
 const MIN_COLS = 40
 const MIN_ROWS = 8
@@ -119,18 +121,18 @@ function ChatApp({
       return
     }
     if (key.pageUp) {
-      scrollUp(Math.floor(visibleRows / 2))
+      scrollUp(visibleRows)
       return
     }
     if (key.pageDown) {
-      scrollDown(Math.floor(visibleRows / 2))
+      scrollDown(visibleRows)
       return
     }
-    if (input === KEY_END || input === KEY_END_ALT) {
+    if (input === KEY_END || input === KEY_END_ALT || input === KEY_END_SS3) {
       unlockScroll()
       return
     }
-    if (input === KEY_HOME || input === KEY_HOME_ALT) {
+    if (input === KEY_HOME || input === KEY_HOME_ALT || input === KEY_HOME_SS3) {
       scrollToTop()
       return
     }

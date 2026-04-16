@@ -27,10 +27,10 @@ export function useScroll(messageCount: number, visibleRows: number): UseScrollR
     (amount = 3) => {
       setIsScrollLocked(true)
       setScrollOffset((previous) =>
-        Math.min(previous + amount, Math.max(0, messageCount - 1)),
+        Math.min(previous + amount, Math.max(0, messageCount - visibleRows)),
       )
     },
-    [messageCount],
+    [messageCount, visibleRows],
   )
 
   const scrollDown = useCallback((amount = 3) => {
