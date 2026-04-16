@@ -8,8 +8,6 @@ from app.moderation import service
 from app.moderation.schemas import (
     BanCreate,
     BanOut,
-    FilterCreate,
-    FilterOut,
     MuteCreate,
     MuteOut,
     ReportCreate,
@@ -101,38 +99,6 @@ async def list_room_mutes(
 ) -> list[MuteOut]:
     await service.require_room_creator_or_admin(room_id, current_user)
     return await service.list_room_mutes(room_id, db)
-
-
-# -- Room Filters -------------------------------------------------------------
-
-
-@router.post(
-    "/rooms/{room_id}/filters",
-    status_code=status.HTTP_201_CREATED,
-    response_model=FilterOut,
-)
-async def create_room_filter(
-    room_id: str,
-    body: FilterCreate,
-    current_user: dict[str, object] = Depends(get_current_user),
-    db: DBConn = Depends(get_db),
-) -> FilterOut:
-    await service.require_room_creator_or_admin(room_id, current_user)
-    return await service.create_room_filter(room_id, body, current_user, db)
-
-
-@router.delete(
-    "/rooms/{room_id}/filters/{filter_id}",
-    status_code=status.HTTP_204_NO_CONTENT,
-)
-async def delete_room_filter(
-    room_id: str,
-    filter_id: str,
-    current_user: dict[str, object] = Depends(get_current_user),
-    db: DBConn = Depends(get_db),
-) -> None:
-    await service.require_room_creator_or_admin(room_id, current_user)
-    await service.delete_room_filter(room_id, filter_id, db)
 
 
 # -- Reports ------------------------------------------------------------------

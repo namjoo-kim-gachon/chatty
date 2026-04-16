@@ -6,14 +6,11 @@ import uuid
 
 from fastapi import HTTPException, status
 
-from app.database import DBConn, Row, get_db_context
+from app.database import DBConn, Row
 from app.game_relay import GameRelayError, RelayMessage, relay
 from app.message_buffer import append as buf_append
 from app.message_buffer import get_latest as buf_get_latest
 from app.message_buffer import get_since_seq as buf_get_since_seq
-from app.message_buffer import warm as buf_warm
-from app.message_writer import WriteJob
-from app.message_writer import enqueue as writer_enqueue
 from app.message_writer import next_seq as writer_next_seq
 from app.messages.schemas import MessageCreate, MessageOut
 from app.moderation import cache as mod_cache
@@ -43,7 +40,7 @@ async def get_messages(
     since_seq: int | None,
     limit: int,
     _current_user: Row,
-    db: DBConn,
+    _db: DBConn,
 ) -> list[MessageOut]:
     room = await mod_cache.get_room_row(room_id)
     if room is None or room["deleted_at"] is not None:
@@ -56,25 +53,14 @@ async def get_messages(
         cached = await buf_get_since_seq(room_id, since_seq, limit)
         if cached is not None:
             return cached
-        cur = await db.execute(
-            "SELECT * FROM messages"
-            " WHERE room_id = %s AND seq > %s ORDER BY seq ASC LIMIT %s",
-            (room_id, since_seq, limit),
-        )
-        rows = await cur.fetchall()
-        return [row_to_message_out(r) for r in rows]
+        # No fallback to DB - messages only in Redis buffer
+        return []
 
     cached = await buf_get_latest(room_id, limit)
     if cached is not None:
         return cached
-    cur = await db.execute(
-        "SELECT * FROM messages WHERE room_id = %s ORDER BY seq DESC LIMIT %s",
-        (room_id, limit),
-    )
-    rows = list(reversed(await cur.fetchall()))
-    result = [row_to_message_out(r) for r in rows]
-    await buf_warm(room_id, result)
-    return result
+    # No fallback to DB - messages only in Redis buffer
+    return []
 
 
 async def send_message(room_id: str, body: MessageCreate, current_user: Row) -> object:
@@ -142,22 +128,8 @@ async def send_message(room_id: str, body: MessageCreate, current_user: Row) -> 
 
     await buf_append(room_id, msg_out)
 
-    # SSE broadcast before DB write -- connected users receive the message
-    # immediately; the DB write happens in the background writer thread.
+    # SSE broadcast
     await broadcaster.broadcast(room_id, "message", msg_out.model_dump())
-
-    writer_enqueue(
-        WriteJob(
-            msg_id=msg_id,
-            room_id=room_id,
-            user_id=str(current_user["id"]),
-            nickname=str(current_user["nickname"]),
-            text=text,
-            msg_type=msg_type,
-            seq=seq,
-            created_at=now,
-        )
-    )
     await mod_cache.update_last_msg_at(room_id, str(current_user["id"]), now)
 
     return msg_out
@@ -170,32 +142,10 @@ async def save_message(
     text: str,
     msg_type: str,
 ) -> MessageOut:
-    """Insert a message and return the MessageOut."""
+    """Create a message and store it in Redis (no DB persistence)."""
     msg_id = str(uuid.uuid4())
     now = time.time()
-
-    async with get_db_context() as db:
-        cur = await db.execute(
-            "INSERT INTO room_seq (room_id, seq) VALUES (%s, 1)"
-            " ON CONFLICT (room_id) DO UPDATE SET seq = room_seq.seq + 1"
-            " RETURNING seq",
-            (room_id,),
-        )
-        seq_row = await cur.fetchone()
-        if seq_row is None:
-            msg = "Failed to allocate seq"
-            raise RuntimeError(msg)
-        seq = seq_row["seq"]
-
-        await db.execute(
-            """
-            INSERT INTO messages
-              (id, room_id, user_id, nickname, text, msg_type, seq, created_at)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-            """,
-            (msg_id, room_id, user_id, nickname, text, msg_type, seq, now),
-        )
-        await db.commit()
+    seq = await writer_next_seq(room_id)
 
     msg_out = MessageOut(
         id=msg_id,

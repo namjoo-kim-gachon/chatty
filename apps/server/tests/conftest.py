@@ -27,7 +27,6 @@ _TEST_DB_URL = "postgresql://postgres:cho9942!@localhost/chatty_test"
 _TRUNCATE_SQL = """
 TRUNCATE TABLE
     messages, room_seq,
-    room_filters, global_filters,
     reports, room_mutes, room_bans, global_bans,
     room_members, room_attrs, room_tags, rooms,
     refresh_tokens, users

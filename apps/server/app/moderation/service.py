@@ -12,8 +12,6 @@ from app.moderation import cache as mod_cache
 from app.moderation.schemas import (
     BanCreate,
     BanOut,
-    FilterCreate,
-    FilterOut,
     MuteCreate,
     MuteOut,
     ReportCreate,
@@ -208,56 +206,6 @@ async def list_room_mutes(room_id: str, db: DBConn) -> list[MuteOut]:
         )
         for r in rows
     ]
-
-
-# -- Room Filters -------------------------------------------------------------
-
-
-async def create_room_filter(
-    room_id: str,
-    body: FilterCreate,
-    current_user: dict[str, object],
-    db: DBConn,
-) -> FilterOut:
-    filter_id = str(uuid.uuid4())
-    now = time.time()
-    await db.execute(
-        """
-        INSERT INTO room_filters
-          (id, room_id, pattern, pattern_type, action, created_by, created_at)
-        VALUES (%s, %s, %s, %s, %s, %s, %s)
-        """,
-        (
-            filter_id,
-            room_id,
-            body.pattern,
-            body.pattern_type,
-            body.action,
-            current_user["id"],
-            now,
-        ),
-    )
-    await db.commit()
-    await mod_cache.invalidate_room_filters(room_id)
-
-    return FilterOut(
-        id=filter_id,
-        room_id=room_id,
-        pattern=body.pattern,
-        pattern_type=body.pattern_type,
-        action=body.action,
-        created_by=str(current_user["id"]),
-        created_at=now,
-    )
-
-
-async def delete_room_filter(room_id: str, filter_id: str, db: DBConn) -> None:
-    await db.execute(
-        "DELETE FROM room_filters WHERE id = %s AND room_id = %s",
-        (filter_id, room_id),
-    )
-    await db.commit()
-    await mod_cache.invalidate_room_filters(room_id)
 
 
 # -- Reports ------------------------------------------------------------------

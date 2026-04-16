@@ -18,24 +18,19 @@ def _matches(text: str, pattern: str, pattern_type: str) -> bool:
     return pattern.lower() in text.lower()
 
 
-async def run_pipeline(  # noqa: C901
+async def run_pipeline(
     text: str,
     room_id: str,
     user_id: str,
 ) -> None:
-    """Run the 7-step moderation pipeline. Raises HTTPException on violation."""
+    """Run moderation pipeline. Raises HTTPException on violation."""
     now = time.time()
 
-    # Steps 1-3: Check global ban, room ban, room mute
+    # Steps 1-2: Check room ban, room mute
     # (cache-first, 0 DB queries on hit)
-    globally_banned, room_banned, room_muted = await mod_cache.check_moderation(
+    room_banned, room_muted = await mod_cache.check_room_moderation(
         user_id, room_id
     )
-    if globally_banned:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You are globally banned",
-        )
     if room_banned:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -47,7 +42,7 @@ async def run_pipeline(  # noqa: C901
             detail="You are muted in this room",
         )
 
-    # 4. Slow mode (cache-first)
+    # 3. Slow mode (cache-first)
     room_meta = await mod_cache.get_room(room_id)
     if room_meta is not None:
         slow = room_meta.slow_mode_sec
@@ -61,16 +56,7 @@ async def run_pipeline(  # noqa: C901
                         detail=f"Slow mode: wait {slow - elapsed:.1f}s",
                     )
 
-    # 5-6. Global + room filters (cache-first, 0 DB queries on hit)
-    filters = await mod_cache.get_filters(room_id)
-    for f in filters:
-        if _matches(text, f.pattern, f.pattern_type):
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Message blocked by filter",
-            )
-
-    # 7. Spam detection (in-memory checks + DB for auto-mute)
+    # 4. Spam detection (in-memory checks + DB for auto-mute)
     if await spam_detector.check(text, room_id, user_id):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

@@ -15,8 +15,6 @@ from app.moderation import cache as mod_cache
 from app.moderation.schemas import (
     BanCreate,
     BanOut,
-    FilterCreate,
-    GlobalFilterOut,
     ReportOut,
 )
 from app.sse import broadcaster
@@ -79,85 +77,6 @@ async def delete_user(user_id: str, db: DBConn) -> None:
         )
     await db.execute("DELETE FROM users WHERE id = %s", (user_id,))
     await db.commit()
-
-
-async def create_global_ban(body: BanCreate, current_user: Row, db: DBConn) -> BanOut:
-    cur = await db.execute("SELECT id FROM users WHERE id = %s", (body.user_id,))
-    target = await cur.fetchone()
-    if target is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
-        )
-
-    ban_id = str(uuid.uuid4())
-    now = time.time()
-    try:
-        await db.execute(
-            """
-            INSERT INTO global_bans
-              (id, user_id, reason, banned_by, created_at, expires_at)
-            VALUES (%s, %s, %s, %s, %s, %s)
-            """,
-            (
-                ban_id,
-                body.user_id,
-                body.reason,
-                current_user["id"],
-                now,
-                body.expires_at,
-            ),
-        )
-        await db.commit()
-    except Exception as e:
-        if "unique" in str(e).lower():
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="User already globally banned",
-            ) from e
-        raise
-
-    await mod_cache.invalidate_global_ban(body.user_id)
-    user = await mod_cache.get_user(body.user_id)
-    nickname = str(user["nickname"]) if user is not None else ""
-    return BanOut(
-        id=ban_id,
-        user_id=body.user_id,
-        nickname=nickname,
-        reason=body.reason,
-        banned_by=str(current_user["id"]),
-        created_at=now,
-        expires_at=body.expires_at,
-    )
-
-
-async def delete_global_ban(user_id: str, db: DBConn) -> None:
-    await db.execute("DELETE FROM global_bans WHERE user_id = %s", (user_id,))
-    await db.commit()
-    await mod_cache.invalidate_global_ban(user_id)
-
-
-async def list_global_bans(db: DBConn) -> list[BanOut]:
-    cur = await db.execute("SELECT * FROM global_bans ORDER BY created_at DESC")
-    rows = await cur.fetchall()
-    result: list[BanOut] = []
-    for r in rows:
-        user = await mod_cache.get_user(str(r["user_id"]))
-        nickname = str(user["nickname"]) if user is not None else ""
-        result.append(
-            BanOut(
-                id=str(r["id"]),
-                user_id=str(r["user_id"]),
-                nickname=nickname,
-                reason=str(r["reason"]),
-                banned_by=str(r["banned_by"]),
-                created_at=float(r["created_at"]),  # type: ignore[arg-type]
-                expires_at=(  # type: ignore[arg-type]
-                    float(r["expires_at"]) if r["expires_at"] is not None else None
-                ),
-            )
-        )
-    return result
-
 
 async def list_reports(report_status: str | None, db: DBConn) -> list[ReportOut]:
     if report_status is not None:
@@ -228,42 +147,3 @@ async def resolve_report(
         if row["resolved_at"] is not None
         else None,
     )
-
-
-async def create_global_filter(
-    body: FilterCreate, current_user: Row, db: DBConn
-) -> GlobalFilterOut:
-    filter_id = str(uuid.uuid4())
-    now = time.time()
-    await db.execute(
-        """
-        INSERT INTO global_filters
-          (id, pattern, pattern_type, action, created_by, created_at)
-        VALUES (%s, %s, %s, %s, %s, %s)
-        """,
-        (
-            filter_id,
-            body.pattern,
-            body.pattern_type,
-            body.action,
-            current_user["id"],
-            now,
-        ),
-    )
-    await db.commit()
-    await mod_cache.invalidate_global_filters()
-
-    return GlobalFilterOut(
-        id=filter_id,
-        pattern=body.pattern,
-        pattern_type=body.pattern_type,
-        action=body.action,
-        created_by=str(current_user["id"]),
-        created_at=now,
-    )
-
-
-async def delete_global_filter(filter_id: str, db: DBConn) -> None:
-    await db.execute("DELETE FROM global_filters WHERE id = %s", (filter_id,))
-    await db.commit()
-    await mod_cache.invalidate_global_filters()

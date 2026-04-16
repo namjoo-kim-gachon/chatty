@@ -13,7 +13,6 @@ from app.redis_client import get_redis
 # ---------------------------------------------------------------------------
 _ROOM_TTL: int = 600
 _MOD_TTL: int = 600
-_FILTER_TTL: int = 600
 _USER_TTL: int = 600
 
 # ---------------------------------------------------------------------------
@@ -32,12 +31,6 @@ class RoomMeta:
 
     def is_deleted(self) -> bool:
         return self.deleted_at is not None
-
-
-@dataclass
-class _Filter:
-    pattern: str
-    pattern_type: str
 
 
 # ---------------------------------------------------------------------------
@@ -379,36 +372,18 @@ def _mod_currently_active(d: object, now: float) -> bool:
     return now < float(expires_at)  # pyright: ignore[reportUnknownArgumentType]
 
 
-async def check_moderation(user_id: str, room_id: str) -> tuple[bool, bool, bool]:
-    """Return (globally_banned, room_banned, room_muted). Cache-first."""
+async def check_room_moderation(user_id: str, room_id: str) -> tuple[bool, bool]:
+    """Return (room_banned, room_muted). Cache-first."""
     now = time.time()
     r = get_redis()
 
-    gban_raw, rban_raw, mute_raw = await r.mget(
-        f"chatty:gban:{user_id}",
+    rban_raw, mute_raw = await r.mget(
         f"chatty:rban:{room_id}:{user_id}",
         f"chatty:mute:{room_id}:{user_id}",
     )
 
-    if gban_raw is None or rban_raw is None or mute_raw is None:
+    if rban_raw is None or mute_raw is None:
         async with get_db_context() as db:
-            if gban_raw is None:
-                cur = await db.execute(
-                    "SELECT expires_at FROM global_bans"
-                    " WHERE user_id = %s"
-                    " AND (expires_at IS NULL OR expires_at > %s) LIMIT 1",
-                    (user_id, now),
-                )
-                row = await cur.fetchone()
-                gban_dict: dict[str, object] = {
-                    "is_active": row is not None,
-                    "expires_at": float(row["expires_at"])
-                    if row is not None and row["expires_at"] is not None
-                    else None,
-                }
-                gban_raw = _dump(gban_dict)
-                await r.set(f"chatty:gban:{user_id}", gban_raw, ex=_MOD_TTL)
-
             if rban_raw is None:
                 cur = await db.execute(
                     "SELECT expires_at FROM room_bans"
@@ -444,7 +419,6 @@ async def check_moderation(user_id: str, room_id: str) -> tuple[bool, bool, bool
                 await r.set(f"chatty:mute:{room_id}:{user_id}", mute_raw, ex=_MOD_TTL)
 
     return (
-        _mod_currently_active(json.loads(gban_raw), now),
         _mod_currently_active(json.loads(rban_raw), now),
         _mod_currently_active(json.loads(mute_raw), now),
     )
@@ -472,66 +446,8 @@ async def invalidate_room_mute(room_id: str, user_id: str) -> None:
 
 
 # ---------------------------------------------------------------------------
-# Filters
+# Slow mode -- last message time
 # ---------------------------------------------------------------------------
-
-
-async def get_filters(room_id: str) -> list[_Filter]:
-    """Return combined global + room filters. Cache-first."""
-    r = get_redis()
-    graw, rraw = await r.mget("chatty:gfilters", f"chatty:rfilters:{room_id}")
-
-    if graw is None or rraw is None:
-        async with get_db_context() as db:
-            if graw is None:
-                cur = await db.execute(
-                    "SELECT pattern, pattern_type FROM global_filters"
-                )
-                rows = await cur.fetchall()
-                gfilters = [
-                    {
-                        "pattern": str(row["pattern"]),
-                        "pattern_type": str(row["pattern_type"]),
-                    }
-                    for row in rows
-                ]
-                graw = _dump(gfilters)
-                await get_redis().set("chatty:gfilters", graw, ex=_FILTER_TTL)
-
-            if rraw is None:
-                cur = await db.execute(
-                    "SELECT pattern, pattern_type FROM room_filters WHERE room_id = %s",
-                    (room_id,),
-                )
-                rows = await cur.fetchall()
-                rfilters = [
-                    {
-                        "pattern": str(row["pattern"]),
-                        "pattern_type": str(row["pattern_type"]),
-                    }
-                    for row in rows
-                ]
-                rraw = _dump(rfilters)
-                await get_redis().set(
-                    f"chatty:rfilters:{room_id}", rraw, ex=_FILTER_TTL
-                )
-
-    gdata: list[dict[str, str]] = json.loads(graw)
-    rdata: list[dict[str, str]] = json.loads(rraw)
-    return [
-        *[_Filter(pattern=d["pattern"], pattern_type=d["pattern_type"]) for d in gdata],
-        *[_Filter(pattern=d["pattern"], pattern_type=d["pattern_type"]) for d in rdata],
-    ]
-
-
-async def invalidate_global_filters() -> None:
-    await get_redis().delete("chatty:gfilters")
-
-
-async def invalidate_room_filters(room_id: str) -> None:
-    await get_redis().delete(f"chatty:rfilters:{room_id}")
-
-
 # ---------------------------------------------------------------------------
 # Slow mode -- last message time
 # ---------------------------------------------------------------------------

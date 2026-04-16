@@ -134,66 +134,6 @@ async def test_unmute_user(
     assert resp.status_code == 201
 
 
-async def test_room_filter_keyword(
-    client: AsyncClient, user_headers: dict, user2_headers: dict
-) -> None:
-    room = await create_room(client, user_headers, name="FilterRoom")
-
-    resp = await client.post(
-        f"/rooms/{room['id']}/filters",
-        json={"pattern": "badword", "pattern_type": "keyword"},
-        headers=user_headers,
-    )
-    assert resp.status_code == 201
-
-    resp = await client.post(
-        f"/rooms/{room['id']}/messages",
-        json={"text": "this has badword in it"},
-        headers=user2_headers,
-    )
-    assert resp.status_code == 403
-
-
-async def test_room_filter_regex(
-    client: AsyncClient, user_headers: dict, user2_headers: dict
-) -> None:
-    room = await create_room(client, user_headers, name="RegexRoom")
-
-    resp = await client.post(
-        f"/rooms/{room['id']}/filters",
-        json={"pattern": r"\d{4}-\d{4}", "pattern_type": "regex"},
-        headers=user_headers,
-    )
-    assert resp.status_code == 201
-
-    resp = await client.post(
-        f"/rooms/{room['id']}/messages",
-        json={"text": "my number is 1234-5678"},
-        headers=user2_headers,
-    )
-    assert resp.status_code == 403
-
-
-async def test_delete_room_filter(
-    client: AsyncClient, user_headers: dict, user2_headers: dict
-) -> None:
-    room = await create_room(client, user_headers, name="DelFilterRoom")
-    filter_resp = await client.post(
-        f"/rooms/{room['id']}/filters",
-        json={"pattern": "blocked"},
-        headers=user_headers,
-    )
-    filter_id = filter_resp.json()["id"]
-
-    await client.delete(
-        f"/rooms/{room['id']}/filters/{filter_id}", headers=user_headers
-    )
-
-    resp = await client.post(
-        f"/rooms/{room['id']}/messages",
-        json={"text": "blocked word here"},
-        headers=user2_headers,
-    )
     assert resp.status_code == 201
 
 

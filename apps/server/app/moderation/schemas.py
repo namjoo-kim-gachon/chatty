@@ -34,31 +34,6 @@ class MuteOut(BaseModel):
     expires_at: float | None
 
 
-class FilterCreate(BaseModel):
-    pattern: str = Field(min_length=1)
-    pattern_type: str = "keyword"
-    action: str = "block"
-
-
-class FilterOut(BaseModel):
-    id: str
-    room_id: str | None
-    pattern: str
-    pattern_type: str
-    action: str
-    created_by: str
-    created_at: float
-
-
-class GlobalFilterOut(BaseModel):
-    id: str
-    pattern: str
-    pattern_type: str
-    action: str
-    created_by: str
-    created_at: float
-
-
 class ReportCreate(BaseModel):
     target_type: str
     target_id: str
