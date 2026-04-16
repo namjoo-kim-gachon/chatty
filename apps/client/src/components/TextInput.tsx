@@ -1,25 +1,11 @@
 import React, { useRef, useCallback } from "react"
 import { Text, useInput } from "ink"
 import type { Key } from "ink"
+import { eastAsianWidth } from "get-east-asian-width"
 
-/* eslint-disable no-magic-numbers */
 function charColWidth(cp: number): number {
-  if (
-    (cp >= 0x11_00 && cp <= 0x11_5f) ||
-    (cp >= 0x2e_80 && cp <= 0x30_3e) ||
-    (cp >= 0x30_41 && cp <= 0x33_bf) ||
-    (cp >= 0x34_00 && cp <= 0x9f_ff) ||
-    (cp >= 0xac_00 && cp <= 0xd7_af) ||
-    (cp >= 0xf9_00 && cp <= 0xfa_ff) ||
-    (cp >= 0xff_01 && cp <= 0xff_60) ||
-    (cp >= 0xff_e0 && cp <= 0xff_e6) ||
-    (cp >= 0x1_f3_00 && cp <= 0x1_fa_ff)
-  ) {
-    return 2
-  }
-  return 1
+  return eastAsianWidth(cp, { ambiguousAsWide: true })
 }
-/* eslint-enable no-magic-numbers */
 
 // Slice the right end of text to fit within maxCols width
 function rightSlice(text: string, maxCols: number): string {
@@ -93,6 +79,9 @@ export function TextInput({
 
     // Drop escape sequences (End, Home, F-keys, etc.) — they should not be appended to input
     if (input.startsWith("\u001B")) return
+
+    // Drop SGR mouse sequences (Ink strips leading ESC: \x1b[<btn;x;yM → [<btn;x;yM)
+    if (/^\[<\d+;\d+;\d+[Mm]$/.test(input)) return
 
     if (input) {
       const next = valueRef.current + input

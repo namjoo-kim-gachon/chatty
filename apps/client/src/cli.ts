@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 import { connect } from "node:net"
 import type { SocketResponse } from "./socket/protocol.js"
 

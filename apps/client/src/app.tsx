@@ -22,6 +22,7 @@ import {
   unbanUser,
   fetchBannedUsers,
 } from "./lib/client.js"
+import { computeTotalLines } from "./lib/textLayout.js"
 import { logout } from "./lib/auth.js"
 import { ThemeProvider } from "./theme/context.js"
 import { LocaleProvider, useLocale } from "./i18n/context.js"
@@ -47,6 +48,11 @@ const VISIBLE_ROWS_OVERHEAD = 4
 const MIN_COLS = 40
 const MIN_ROWS = 8
 const MS_PER_SECOND = 1000
+const MOUSE_ENABLE = "\u001B[?1000h\u001B[?1006h"
+const MOUSE_DISABLE = "\u001B[?1000l\u001B[?1006l"
+const MOUSE_WHEEL_UP = 64
+const MOUSE_WHEEL_DOWN = 65
+const MOUSE_SCROLL_LINES = 3
 
 interface AppProps {
   readonly config: Config
@@ -115,40 +121,31 @@ function ChatApp({
   } = useChat(config, authState, initialRoom)
 
   const visibleRows = Math.max(1, dims.rows - VISIBLE_ROWS_OVERHEAD)
+  const totalLines = useMemo(
+    () => computeTotalLines(messages, dims.cols),
+    [messages, dims.cols],
+  )
   const { scrollOffset, isScrollLocked, unlockScroll, scrollUp, scrollDown, scrollToTop } =
-    useScroll(messages.length, visibleRows)
+    useScroll(totalLines, visibleRows, stdout)
 
-  // Enable mouse tracking
   useEffect(() => {
-    stdout.write("\u001B[?1000h") // Enable mouse tracking
-    stdout.write("\u001B[?1002h") // Enable cell motion mouse tracking
-    stdout.write("\u001B[?1003h") // Enable all events mouse tracking
-
-    const handleMouse = (data: Buffer) => {
-      if (screen.type !== "chat") return
-      const str = data.toString()
-      // X11 mouse encoding: \u001B[M<button><x><y>
-      // Wheel up: button 64, Wheel down: button 65
-      if (str.startsWith("\u001B[M")) {
-        const button = str.charCodeAt(3) - 32
-        if (button === 64) {
-          scrollUp(3)
-        } else if (button === 65) {
-          scrollDown(3)
-        }
-      }
-    }
-
-    process.stdin.on("data", handleMouse)
+    stdout.write(MOUSE_ENABLE)
     return () => {
-      process.stdin.off("data", handleMouse)
-      stdout.write("\u001B[?1000l") // Disable mouse tracking
-      stdout.write("\u001B[?1002l")
-      stdout.write("\u001B[?1003l")
+      stdout.write(MOUSE_DISABLE)
     }
-  }, [stdout, screen.type, scrollUp, scrollDown])
+  }, [stdout])
 
   useInput((input, key) => {
+    // SGR mouse: Ink strips leading ESC, so \x1b[<btn;x;yM arrives as [<btn;x;yM
+    const mouseSgr = /^\[<(\d+);\d+;\d+[Mm]$/.exec(input)
+    if (mouseSgr !== null) {
+      if (screen.type === "chat") {
+        const button = Number(mouseSgr[1])
+        if (button === MOUSE_WHEEL_UP) scrollUp(MOUSE_SCROLL_LINES)
+        else if (button === MOUSE_WHEEL_DOWN) scrollDown(MOUSE_SCROLL_LINES)
+      }
+      return
+    }
     if (screen.type !== "chat") return
     if (key.escape && showHelp) {
       setShowHelp(false)
@@ -595,7 +592,7 @@ function ChatApp({
     screen: screen.type,
   })
 
-  const bridgeActionsRef = useRef<AppActions>({
+  const bridgeActionsRef = useRef({
     enterRoom,
     exitRoom,
     sendMessage: (text: string) =>

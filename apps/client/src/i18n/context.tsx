@@ -2,7 +2,7 @@ import React, { createContext, useContext } from "react"
 import type { Locale } from "./types.js"
 import { defaultLocale } from "./default.js"
 
-const LocaleContext = createContext<Locale>(defaultLocale)
+const LocaleContext = createContext(defaultLocale)
 
 interface LocaleProviderProps {
   readonly locale: Locale

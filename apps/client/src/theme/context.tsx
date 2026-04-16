@@ -2,7 +2,7 @@ import React, { createContext, useContext } from "react"
 import type { Theme } from "./types.js"
 import { defaultTheme } from "./default.js"
 
-const ThemeContext = createContext<Theme>(defaultTheme)
+const ThemeContext = createContext(defaultTheme)
 
 interface ThemeProviderProps {
   readonly theme: Theme

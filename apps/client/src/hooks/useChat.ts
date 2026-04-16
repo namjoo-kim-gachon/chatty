@@ -91,20 +91,20 @@ export function useChat(
     initialRoom?.owner_nickname ?? "",
   )
   const [gameState, setGameState] = useState<GameState | undefined>()
-  const [nickColorMap, setNickColorMap] = useState<Map<string, number>>(
+  const [nickColorMap, setNickColorMap] = useState(
     new Map(),
   )
-  const [roomMembers, setRoomMembers] = useState<Map<string, UserEntry>>(
+  const [roomMembers, setRoomMembers] = useState(
     new Map(),
   )
 
   const lastSeqRef = useRef(0)
   const sseCloseRef = useRef<(() => void) | undefined>(undefined)
   const activeRoomRef = useRef(initialRoom)
-  const nickSlotsRef = useRef<Map<string, number>>(new Map())
-  const usedSlotsRef = useRef<Set<number>>(new Set())
+  const nickSlotsRef = useRef(new Map())
+  const usedSlotsRef = useRef(new Set())
   // Ref mirror of roomMembers for use inside SSE event closures
-  const roomMembersRef = useRef<Map<string, UserEntry>>(new Map())
+  const roomMembersRef = useRef(new Map())
 
   const closeSse = useCallback(() => {
     sseCloseRef.current?.()
