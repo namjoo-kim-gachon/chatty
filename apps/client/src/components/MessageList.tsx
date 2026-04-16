@@ -236,7 +236,7 @@ export function MessageList({
   let linesFromEnd = 0
   while (end > 0) {
     const messageLines = lineCounts[end - 1] ?? 1
-    if (linesFromEnd + messageLines > scrollOffset) break
+    if (linesFromEnd >= scrollOffset) break
     linesFromEnd += messageLines
     end--
   }
