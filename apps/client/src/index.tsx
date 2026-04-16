@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import React, { useCallback, useEffect, useState } from "react"
 import { Box, Text, render, useApp, useInput } from "ink"
 
