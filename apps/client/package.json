@@ -1,6 +1,6 @@
 {
   "name": "@namjookim/chatty",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Chatty — terminal chat client (TUI + CLI)",
   "homepage": "https://github.com/namjoo-kim-gachon/chatty",
   "repository": {
