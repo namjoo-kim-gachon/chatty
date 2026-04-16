@@ -34,7 +34,10 @@ const LOCAL_MESSAGE_PREFIX = "local-"
 const FORBIDDEN_ERROR = "403: Forbidden"
 
 const KEY_END = "\u001B[F"
-const VISIBLE_ROWS_OVERHEAD = 6
+const KEY_END_ALT = "\u001B[4~"
+const KEY_HOME = "\u001B[H"
+const KEY_HOME_ALT = "\u001B[1~"
+const VISIBLE_ROWS_OVERHEAD = 4
 const MIN_COLS = 40
 const MIN_ROWS = 8
 const MS_PER_SECOND = 1000
@@ -106,8 +109,8 @@ function ChatApp({
   } = useChat(config, authState, initialRoom)
 
   const visibleRows = Math.max(1, dims.rows - VISIBLE_ROWS_OVERHEAD)
-  const { scrollOffset, isScrollLocked, unlockScroll, scrollUp, scrollDown } =
-    useScroll(messages.length)
+  const { scrollOffset, isScrollLocked, unlockScroll, scrollUp, scrollDown, scrollToTop } =
+    useScroll(messages.length, visibleRows)
 
   useInput((input, key) => {
     if (screen.type !== "chat") return
@@ -123,8 +126,12 @@ function ChatApp({
       scrollDown(Math.floor(visibleRows / 2))
       return
     }
-    if (input === KEY_END) {
+    if (input === KEY_END || input === KEY_END_ALT) {
       unlockScroll()
+      return
+    }
+    if (input === KEY_HOME || input === KEY_HOME_ALT) {
+      scrollToTop()
       return
     }
     if (key.ctrl && input === "c") {

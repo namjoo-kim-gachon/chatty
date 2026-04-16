@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from httpx import AsyncClient
 
+from app.database import LOBBY_ROOM_ID
 from tests.conftest import create_room
 
 
@@ -110,3 +111,25 @@ async def test_slash_who(client: AsyncClient, user_headers: dict) -> None:
     assert resp.status_code == 201
     data = resp.json()
     assert "users" in data
+
+
+async def test_lobby_admin_only_blocks_regular_user(
+    client: AsyncClient, user_headers: dict
+) -> None:
+    resp = await client.post(
+        f"/rooms/{LOBBY_ROOM_ID}/messages",
+        json={"text": "hi from regular user"},
+        headers=user_headers,
+    )
+    assert resp.status_code == 403
+
+
+async def test_lobby_admin_only_allows_admin(
+    client: AsyncClient, admin_headers: dict
+) -> None:
+    resp = await client.post(
+        f"/rooms/{LOBBY_ROOM_ID}/messages",
+        json={"text": "hi from admin"},
+        headers=admin_headers,
+    )
+    assert resp.status_code == 201

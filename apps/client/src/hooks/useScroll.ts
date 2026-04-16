@@ -7,9 +7,10 @@ interface UseScrollResult {
   unlockScroll: () => void
   scrollUp: (amount?: number) => void
   scrollDown: (amount?: number) => void
+  scrollToTop: () => void
 }
 
-export function useScroll(messageCount: number): UseScrollResult {
+export function useScroll(messageCount: number, visibleRows: number): UseScrollResult {
   const [scrollOffset, setScrollOffset] = useState(0)
   const [isScrollLocked, setIsScrollLocked] = useState(false)
 
@@ -42,6 +43,12 @@ export function useScroll(messageCount: number): UseScrollResult {
     })
   }, [])
 
+  const scrollToTop = useCallback(() => {
+    const topOffset = Math.max(0, messageCount - visibleRows)
+    setIsScrollLocked(topOffset > 0)
+    setScrollOffset(topOffset)
+  }, [messageCount, visibleRows])
+
   return {
     scrollOffset,
     isScrollLocked,
@@ -49,5 +56,6 @@ export function useScroll(messageCount: number): UseScrollResult {
     unlockScroll,
     scrollUp,
     scrollDown,
+    scrollToTop,
   }
 }

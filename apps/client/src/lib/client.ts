@@ -180,14 +180,18 @@ export async function createRoom(
       name: options.name,
       description: options.description ?? "",
       password: options.password ?? null,
-      max_members: options.max_members ?? null,
+      ...(options.max_members !== undefined && { max_members: options.max_members }),
       slow_mode_sec: options.slow_mode_sec ?? 0,
     }),
   })
   if (!response.ok) {
     const detail = await response
       .json()
-      .then((d: { detail?: string }) => d.detail ?? "")
+      .then((d: { detail?: unknown }) => {
+        if (typeof d.detail === "string") return d.detail
+        if (d.detail !== undefined) return JSON.stringify(d.detail)
+        return ""
+      })
       .catch(() => "")
     throw new Error(
       detail || `Failed to create room: ${response.status.toString()}`,

@@ -91,6 +91,9 @@ export function TextInput({
       return
     }
 
+    // Drop escape sequences (End, Home, F-keys, etc.) — they should not be appended to input
+    if (input.startsWith("\u001B")) return
+
     if (input) {
       const next = valueRef.current + input
       valueRef.current = next

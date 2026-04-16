@@ -61,7 +61,7 @@ export function InputBar({
 
   setCursorPosition({
     x: Math.min(promptWidth + stringWidth(inputValue), cols - 1),
-    y: stdout.rows - 2,
+    y: stdout.rows - 3,
   })
 
   return (

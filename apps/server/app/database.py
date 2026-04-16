@@ -36,6 +36,11 @@ _DEFAULT_ROOMS = [
     ("random", 2, "random", "chat", "Free talk, no specific topic"),
 ]
 
+_DEFAULT_ROOM_ATTRS: list[tuple[str, str, str]] = [
+    # (room_id, key, value)
+    ("lobby", "admin_only", "true"),
+]
+
 
 # ---------------------------------------------------------------------------
 # Sync helpers -- test infrastructure only
@@ -84,6 +89,12 @@ def _seed(conn: psycopg.Connection[Row]) -> None:
             "INSERT INTO room_seq (room_id, seq) VALUES (%s, 0)"
             " ON CONFLICT (room_id) DO NOTHING",
             (room_id,),
+        )
+    for room_id, key, value in _DEFAULT_ROOM_ATTRS:
+        conn.execute(
+            "INSERT INTO room_attrs (room_id, key, value) VALUES (%s, %s, %s)"
+            " ON CONFLICT (room_id, key) DO NOTHING",
+            (room_id, key, value),
         )
     conn.commit()
 
@@ -139,6 +150,12 @@ async def _aseed(conn: psycopg.AsyncConnection[Row]) -> None:
             "INSERT INTO room_seq (room_id, seq) VALUES (%s, 0)"
             " ON CONFLICT (room_id) DO NOTHING",
             (room_id,),
+        )
+    for room_id, key, value in _DEFAULT_ROOM_ATTRS:
+        await conn.execute(
+            "INSERT INTO room_attrs (room_id, key, value) VALUES (%s, %s, %s)"
+            " ON CONFLICT (room_id, key) DO NOTHING",
+            (room_id, key, value),
         )
     await conn.commit()
 
