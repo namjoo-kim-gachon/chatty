@@ -94,6 +94,28 @@ export interface CreateRoomOptions {
   slow_mode_sec?: number
 }
 
+export interface CurrentUser {
+  id: string
+  email: string
+  nickname: string
+  is_admin: boolean
+}
+
+export async function fetchCurrentUser(
+  serverUrl: string,
+  token: string,
+): Promise<CurrentUser | null> {
+  try {
+    const response = await fetch(`${serverUrl}/auth/me`, {
+      headers: { authorization: `Bearer ${token}` },
+    })
+    if (!response.ok) return null
+    return (await response.json()) as CurrentUser
+  } catch {
+    return null
+  }
+}
+
 export async function fetchRooms(
   serverUrl: string,
   token: string,

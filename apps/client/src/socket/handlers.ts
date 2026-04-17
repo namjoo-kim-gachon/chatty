@@ -3,6 +3,7 @@ import type { AppState, AppActions } from "../bridge.js"
 import type { CommandName } from "./protocol.js"
 import {
   fetchRooms,
+  fetchCurrentUser,
   createRoom,
   getRoom,
   fetchUsers,
@@ -35,18 +36,24 @@ function requireActiveRoom(state: AppState): Room {
   return state.activeRoom
 }
 
-function handleStatus(state: AppState): Promise<unknown> {
+async function handleStatus(
+  state: AppState,
+  _actions: AppActions,
+  _params: Record<string, unknown>,
+  config: Config,
+): Promise<unknown> {
   const freshAuth = readTokens()
   const authState = freshAuth ?? state.authState
-  return Promise.resolve({
-    nickname: authState.nickname,
+  const me = await fetchCurrentUser(config.server_url, authState.token)
+  return {
+    nickname: me?.nickname ?? authState.nickname,
     user_id: authState.user_id,
-    is_admin: authState.is_admin,
+    is_admin: me?.is_admin ?? authState.is_admin,
     active_room: state.activeRoom ?? null,
     sse_status: state.sseStatus,
     is_muted: state.isMuted,
     is_banned: state.isBanned,
-  })
+  }
 }
 
 async function handleRoomsList(
@@ -295,7 +302,8 @@ async function handleUsersUnban(
 }
 
 export const handlers: Record<CommandName, Handler> = {
-  status: (state) => handleStatus(state),
+  status: (state, actions, params, config) =>
+    handleStatus(state, actions, params, config),
   "rooms.list": handleRoomsList,
   "rooms.create": handleRoomsCreate,
   "rooms.join": handleRoomsJoin,
