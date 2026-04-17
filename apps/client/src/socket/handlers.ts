@@ -14,6 +14,7 @@ import {
   fetchBannedUsers,
   sendMessage,
 } from "../lib/client.js"
+import { readTokens } from "../lib/tokenStore.js"
 
 const LOBBY_ROOM_ID = "lobby"
 const NO_ROOM_ERROR = "Not connected to any room"
@@ -35,10 +36,12 @@ function requireActiveRoom(state: AppState): Room {
 }
 
 function handleStatus(state: AppState): Promise<unknown> {
+  const freshAuth = readTokens()
+  const authState = freshAuth ?? state.authState
   return Promise.resolve({
-    nickname: state.authState.nickname,
-    user_id: state.authState.user_id,
-    is_admin: state.authState.is_admin,
+    nickname: authState.nickname,
+    user_id: authState.user_id,
+    is_admin: authState.is_admin,
     active_room: state.activeRoom ?? null,
     sse_status: state.sseStatus,
     is_muted: state.isMuted,
