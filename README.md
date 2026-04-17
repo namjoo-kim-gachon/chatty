@@ -154,6 +154,41 @@ Change socket port: `CHATTY_SOCKET_PORT=7801 chatty-cli status`
 }
 ```
 
+### Themes
+
+Built-in themes: `default`, `dracula`
+
+To use a built-in theme, set `"theme": "dracula"` in your config.
+
+To create a custom theme, add a JSON file at `~/.config/chatty/themes/<name>.json` and set `"theme": "<name>"` in your config. You only need to override the fields you want to change — the rest fall back to the default theme.
+
+```json
+{
+  "status": {
+    "connected": "#00ff00",
+    "reconnecting": "#ffaa00",
+    "disconnected": "#ff0000",
+    "roomNumber": "#bd93f9"
+  },
+  "message": {
+    "system": "#f1fa8c",
+    "selfNick": "#ff79c6",
+    "nickColors": ["#8be9fd", "#50fa7b", "#ff79c6", "#bd93f9", "#ffb86c"]
+  },
+  "ui": {
+    "selected": "#8be9fd",
+    "ownerName": "#f1fa8c",
+    "mutedName": "#ff5555"
+  },
+  "symbols": {
+    "separator": "━",
+    "statusDot": "●"
+  }
+}
+```
+
+---
+
 | Environment variable | Description | Default |
 |----------------------|-------------|---------|
 | `CHATTY_SERVER_URL` | Server URL | `https://chatty.1000.school` |
