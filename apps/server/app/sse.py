@@ -269,7 +269,11 @@ class SSEBroadcaster:
     async def stream(self, conn: SSEConnection) -> AsyncGenerator[str, None]:
         try:
             while True:
-                event = await conn.get()
+                try:
+                    event = await asyncio.wait_for(conn.get(), timeout=25)
+                except asyncio.TimeoutError:
+                    yield ": ping\n\n"
+                    continue
                 if event is None:
                     break
                 event_type = str(event.get("event", "message"))

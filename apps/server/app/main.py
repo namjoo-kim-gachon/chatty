@@ -38,6 +38,8 @@ async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
     )
 
     async def _on_room_empty(room_id: str) -> None:
+        # Grace period: brief SSE reconnects shouldn't delete the room
+        await asyncio.sleep(60)
         await _auto_delete(room_id)
 
     broadcaster.set_room_empty_callback(on_room_empty=_on_room_empty)
